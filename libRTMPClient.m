@@ -7,10 +7,10 @@
 //
 
 #import "libRTMPClient.h"
-
 #import "FLVPacket.h"
 
-#define outputURL "rtmp://v.present.tv:1935/air/justinmakaila"
+#warning !FIX! Put your RTMP output URL here
+#define outputURL ""
 
 typedef enum {
     kConnectHost = 0,
@@ -48,72 +48,72 @@ void skip_bytes(uint8_t **data, uint8_t val) {
 
 // puts 8 bits
 void put_byte(uint8_t **data, uint8_t val) {
-    MLLog(@"***************** START of put_byte *****************");
+    NSLog(@"***************** START of put_byte *****************");
     
-    DLLog(@"Value = %i", val);
+    NSLog(@"Value = %i", val);
     
     assert(val >= -128 && val <= 255);
     *data[0]++ = val;
     
-    DLLog(@"Value of data\n \t*data[0] = %p", (void*)*data[0]);
-    DLLog(@"Value of data pointers\n \tdata = %p\n \t*data = %p\n \t*data[0] = %p", data, *data, (void*)*data[0]);
-    MLLog(@"***************** END of put_byte *****************");
+    NSLog(@"Value of data\n \t*data[0] = %p", (void*)*data[0]);
+    NSLog(@"Value of data pointers\n \tdata = %p\n \t*data = %p\n \t*data[0] = %p", data, *data, (void*)*data[0]);
+    NSLog(@"***************** END of put_byte *****************");
 }
 
 // puts 16 bits
 void put_be16(uint8_t **data, unsigned int val) {
-    MLLog(@"***************** START of put_be16 *****************");
+    NSLog(@"***************** START of put_be16 *****************");
     
     put_byte(data, (int)val >> 8);
     put_byte(data, (uint8_t)val);
     
-    MLLog(@"***************** END of put_be16 *****************");
+    NSLog(@"***************** END of put_be16 *****************");
 }
 
 // puts 32 bits
 void put_be32(uint8_t **data, unsigned int val) {
-    MLLog(@"***************** START of put_be32 *****************");
+    NSLog(@"***************** START of put_be32 *****************");
     
-    DLLog(@"Value = %i", val);
+    NSLog(@"Value = %i", val);
     put_byte(data,           val >> 24);
     put_byte(data, (uint8_t)(val >> 16));
     put_byte(data, (uint8_t)(val >> 8));
     put_byte(data, (uint8_t) val);
     
-    MLLog(@"***************** END of put_be32 *****************");
+    NSLog(@"***************** END of put_be32 *****************");
 }
 
 // puts 24 bits
 void put_be24(uint8_t **data, unsigned int val) {
-    MLLog(@"***************** START of put_be24 *****************");
+    NSLog(@"***************** START of put_be24 *****************");
     
-    DLLog(@"Value = %i", val);
+    NSLog(@"Value = %i", val);
     put_be16(data, (int)val >> 8);
     put_byte(data, (uint8_t)val);
     
-    MLLog(@"***************** END of put_be24 *****************");
+    NSLog(@"***************** END of put_be24 *****************");
 }
 
 // puts buffer
 void put_buff(uint8_t **data, const uint8_t *src, int32_t srcsize) {
-    MLLog(@"***************** START of put_buff *****************");
+    NSLog(@"***************** START of put_buff *****************");
     
     memcpy(*data, src, srcsize);
     *data += srcsize;
     
-    MLLog(@"***************** END of put_buff *****************");
+    NSLog(@"***************** END of put_buff *****************");
 }
 
 // puts 8 bit representation of each char
 void put_tag(uint8_t **data, const char *tag) {
-    MLLog(@"***************** START of put_tag *****************");
+    NSLog(@"***************** START of put_tag *****************");
     
     while (*tag) {
         DLLog(@"\n\n \t *tag = %c", *tag);
         put_byte(data, *tag++);
     }
     
-    MLLog(@"***************** END of put_tag *****************");
+    NSLog(@"***************** END of put_tag *****************");
 }
 
 @implementation libRTMPClient
@@ -227,11 +227,11 @@ void put_tag(uint8_t **data, const char *tag) {
     char cBuffer[4096];
     uint8_t *buffer = (uint8_t*)cBuffer;
     
-    FLVLog(@"Checkpoint #%i: Will call writeStreamHeader:ofSize:withAvcC:ofSize:\n  cBuffer = %p\n  sizeof(cBuffer) = %ld\n\n  buffer = %p\n  *buffer = %p\n  sizeof(buffer) = %ld", kNumCheckpoint++, cBuffer, sizeof(cBuffer), buffer, (void*)*buffer, sizeof(*buffer));
+    NSLog(@"Checkpoint #%i: Will call writeStreamHeader:ofSize:withAvcC:ofSize:\n  cBuffer = %p\n  sizeof(cBuffer) = %ld\n\n  buffer = %p\n  *buffer = %p\n  sizeof(buffer) = %ld", kNumCheckpoint++, cBuffer, sizeof(cBuffer), buffer, (void*)*buffer, sizeof(*buffer));
     
     ret = [flvPkt writeStreamHeader:&buffer ofSize:sizeof(cBuffer) withAvcC:avcC ofSize:avcCSize];
     
-    FLVLog(@"Checkpoint #%i: Did call writeStreamHeader:ofSize:withAvcC:ofSize:\n returned %i\n  buffer = %p\n  *buffer = %p\n  cBuffer = %p", kNumCheckpoint++, ret, buffer, (void*)*buffer, cBuffer);
+    NSLog(@"Checkpoint #%i: Did call writeStreamHeader:ofSize:withAvcC:ofSize:\n returned %i\n  buffer = %p\n  *buffer = %p\n  cBuffer = %p", kNumCheckpoint++, ret, buffer, (void*)*buffer, cBuffer);
     
     RTMP_Write(rtmp, (const char*)buffer, ret);
 }
@@ -269,7 +269,7 @@ void put_tag(uint8_t **data, const char *tag) {
     size                    = frame - pFrameStart;              // Get the size of the data written to frame
     frame                   = pFrameStart;                      // Reset the frame pointer to the beginning
     
-    FLVLog(@"Checkpoint #%i: Will call writeNALU:ofSize:toPacket:time:keyframe:\n\n  \tsize = %i", kNumCheckpoint++, size);
+    NSLog(@"Checkpoint #%i: Will call writeNALU:ofSize:toPacket:time:keyframe:\n\n  \tsize = %i", kNumCheckpoint++, size);
     
     ret = [flvPkt writeNALU:frame                               // Write frame
                      ofSize:size                                // of size
@@ -282,7 +282,7 @@ void put_tag(uint8_t **data, const char *tag) {
         return;
     }
     
-    FLVLog(@"\n  \tReturned dataSize = %i", ret);
+    NSLog(@"\n  \tReturned dataSize = %i", ret);
     
     RTMP_Write(rtmp, (const char*)buffer, ret);           // Write the buffer to RTMP
 }
@@ -322,7 +322,7 @@ void put_tag(uint8_t **data, const char *tag) {
     
     ret = RTMP_Write(rtmp, (const char*)buffer, ret);
     
-    FLVLog(@"\n  \tRTMP_Write returned %i", ret);
+    NSLog(@"\n  \tRTMP_Write returned %i", ret);
     
     return ret;
 }
